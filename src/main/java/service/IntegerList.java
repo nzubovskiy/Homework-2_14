@@ -15,6 +15,8 @@ public interface IntegerList {
     // в качестве результата выполнения.
     Integer add(int index, Integer item);
 
+    void grow();
+
     // Установить элемент
     // на определенную позицию,
     // затерев существующий.
@@ -74,4 +76,6 @@ public interface IntegerList {
     // из строк в списке
     // и вернуть его.
     Integer[] toArray();
+
+    void sort(Integer[] storage);
 }

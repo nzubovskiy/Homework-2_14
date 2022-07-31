@@ -11,6 +11,10 @@ public class Sorting {
         System.out.println("Среднее время сортировки выбором: " + timeForSelectionSort + " мс.");
         double timeForInsertionSort = timeForInsertionSort(5);
         System.out.println("Среднее время сортировки вставкой: " + timeForInsertionSort + " мс.");
+        double timeForQuickSort = timeForQuickSort(5);
+        System.out.println("Среднее время быстрой сортировки: " + timeForQuickSort + " мс.");
+        double timeForMergeSort = timeForMergeSort(5);
+        System.out.println("Среднее время сортировки слиянием: " + timeForMergeSort + " мс.");
     }
 
     private static double timeForBubbleSort(int iteration) {
@@ -43,6 +47,30 @@ public class Sorting {
             int[] array = generateArray(100_000);
             long start = System.currentTimeMillis();
             sortInsertion(array);
+            long end = System.currentTimeMillis() - start;
+            sum += end;
+        }
+        return sum / iteration;
+    }
+
+    private static double timeForQuickSort(int iteration) {
+        double sum = 0;
+        for (int i = 0; i < iteration; i++) {
+            int[] array = generateArray(100_000);
+            long start = System.currentTimeMillis();
+            quickSort(array, 0, array.length - 1);
+            long end = System.currentTimeMillis() - start;
+            sum += end;
+        }
+        return sum / iteration;
+    }
+
+    private static double timeForMergeSort(int iteration) {
+        double sum = 0;
+        for (int i = 0; i < iteration; i++) {
+            int[] array = generateArray(100_000);
+            long start = System.currentTimeMillis();
+            mergeSort(array);
             long end = System.currentTimeMillis() - start;
             sum += end;
         }
@@ -96,4 +124,73 @@ public class Sorting {
             arr[j] = temp;
         }
     }
+
+    private static void quickSort(int[] arr, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end);
+
+                quickSort(arr, begin, partitionIndex - 1);
+                quickSort(arr, partitionIndex + 1, end);
+            }
+        }
+
+        private static int partition(int[] arr, int begin, int end) {
+            int pivot = arr[end];
+            int i = (begin - 1);
+
+            for (int j = begin; j < end; j++) {
+                if (arr[j] <= pivot) {
+                    i++;
+
+                    swapElements(arr, i, j);
+                }
+            }
+
+            swapElements(arr, i + 1, end);
+            return i + 1;
+    }
+
+    private static void mergeSort(int[] arr) {
+        if (arr.length < 2) {
+            return;
+        }
+        int mid = arr.length / 2;
+        int[] left = new int[mid];
+        int[] right = new int[arr.length - mid];
+
+        for (int i = 0; i < left.length; i++) {
+            left[i] = arr[i];
+        }
+
+        for (int i = 0; i < right.length; i++) {
+            right[i] = arr[mid + i];
+        }
+
+        mergeSort(left);
+        mergeSort(right);
+
+        merge(arr, left, right);
+    }
+
+    private static void merge(int[] arr, int[] left, int[] right) {
+
+        int mainP = 0;
+        int leftP = 0;
+        int rightP = 0;
+        while (leftP < left.length && rightP < right.length) {
+            if (left[leftP] <= right[rightP]) {
+                arr[mainP++] = left[leftP++];
+            } else {
+                arr[mainP++] = right[rightP++];
+            }
+        }
+        while (leftP < left.length) {
+            arr[mainP++] = left[leftP++];
+        }
+        while (rightP < right.length) {
+            arr[mainP++] = right[rightP++];
+        }
+    }
+
+
 }

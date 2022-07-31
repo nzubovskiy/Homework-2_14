@@ -2,14 +2,13 @@ package service;
 
 import exception.InvalidIndexException;
 import exception.NullItemException;
-import exception.StorageIsFullException;
 
 import java.util.Arrays;
 
 
 public class IntegerListImpl implements IntegerList{
 
-    private final Integer[] storage;
+    private Integer[] storage;
     private int size;
 
     public IntegerListImpl() {
@@ -42,6 +41,16 @@ public class IntegerListImpl implements IntegerList{
         storage[index] = item;
         size++;
         return item;
+    }
+
+    @Override
+    public void grow() {
+        Integer[] newStorage = new Integer[(int) (size * 1.5)];
+        for (int i = 0; i < storage.length; i++) {
+            newStorage[i] = storage[i];
+        }
+        storage = newStorage;
+        size = (int) (size * 1.5);
     }
 
     @Override
@@ -79,7 +88,7 @@ public class IntegerListImpl implements IntegerList{
 
     @Override
     public boolean contains(Integer item) {
-        sort();
+        sort(storage);
         int min = 0;
         int max = storage.length - 1;
         while (min <= max) {
@@ -147,17 +156,50 @@ public class IntegerListImpl implements IntegerList{
         return Arrays.copyOf(storage, size);
     }
 
-    private void sort() {
-        for (int i = 0; i < size; i++) {
-            int temp = storage[i];
-            int j = i;
-            while (j > 0 && storage[j - 1] >= temp) {
-                storage[j] = storage[j - 1];
-                j--;
+    @Override
+    public void sort(Integer[] storage) {
+        if (storage.length < 2) {
+            return;
+        }
+        Integer mid = storage.length / 2;
+        Integer[] left = new Integer[mid];
+        int i1 = storage.length - mid;
+        Integer[] right = new Integer[i1];
+
+        for (int i = 0; i < left.length; i++) {
+            left[i] = storage[i];
+        }
+
+        for (int i = 0; i < right.length; i++) {
+            right[i] = storage[mid + i];
+        }
+
+        sort(left);
+        sort(right);
+
+        merge(storage, left, right);
+    }
+
+    private static void merge(Integer[] storage, Integer[] left, Integer[] right) {
+
+        int mainP = 0;
+        int leftP = 0;
+        int rightP = 0;
+        while (leftP < left.length && rightP < right.length) {
+            if (left[leftP] <= right[rightP]) {
+                storage[mainP++] = left[leftP++];
+            } else {
+                storage[mainP++] = right[rightP++];
             }
-            storage[i] = temp;
+        }
+        while (leftP < left.length) {
+            storage[mainP++] = left[leftP++];
+        }
+        while (rightP < right.length) {
+            storage[mainP++] = right[rightP++];
         }
     }
+
 
     private void validateItem(Integer item) {
         if (item == null) {
@@ -167,7 +209,7 @@ public class IntegerListImpl implements IntegerList{
 
     private void validateSize() {
         if (size == storage.length) {
-            throw new StorageIsFullException();
+            grow();
         }
     }
 
